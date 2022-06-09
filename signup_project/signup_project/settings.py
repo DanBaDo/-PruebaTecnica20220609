@@ -32,13 +32,21 @@ ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", [])
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
+    # Avoid to expose admin pannel if not needed.
+    # 'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # From django-phonenumber-field[phonenumberslite] pip package
+    'phonenumber_field',
+    'profiles_api.apps.ProfilesApiConfig'
 ]
+
+# Expose admin pannel in development environment
+if DEBUG: INSTALLED_APPS.append('django.contrib.admin')
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
