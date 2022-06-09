@@ -47,7 +47,6 @@ INSTALLED_APPS = [
 # Expose admin pannel in development environment
 if DEBUG: INSTALLED_APPS.append('django.contrib.admin')
 
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
