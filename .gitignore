@@ -3,3 +3,4 @@ venv/
 docs/prueba.pdf
 *.sqlite3
 .vscode/
+*.bak
