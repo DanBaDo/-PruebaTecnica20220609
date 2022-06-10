@@ -41,11 +41,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # From django-phonenumber-field[phonenumberslite] pip package
     'phonenumber_field',
-    'profiles_api.apps.ProfilesApiConfig'
+    'profiles_api',
+    'rest_framework',
 ]
 
 # Expose admin pannel in development environment
-if DEBUG: INSTALLED_APPS.append('django.contrib.admin')
+if DEBUG: INSTALLED_APPS.insert(0,'django.contrib.admin')
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
