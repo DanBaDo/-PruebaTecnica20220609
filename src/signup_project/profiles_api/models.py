@@ -5,6 +5,11 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 # Create your models here.
 class Profile(models.Model):
+    """
+    User profile model.
+    id field explicitly added for type hinting.
+    """
+    id = models.BigAutoField(primary_key=True)
     name = models.CharField("real name", max_length=100)
     surname = models.CharField("last name", max_length=200)
     email = models.EmailField("e-mail address",max_length=200)
