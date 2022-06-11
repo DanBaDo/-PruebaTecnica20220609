@@ -41,6 +41,14 @@ class VerificationToken:
 
     Exceptions
 
+        MissingRequiredSecret
+
+        MissingRequiredProperties
+        
+        PyJWT exceptions:
+            https://pyjwt.readthedocs.io/en/stable/api.html#exceptions
+
+
     """
         
     verify_property: VERIFIABLE_FIELDS
@@ -51,6 +59,7 @@ class VerificationToken:
 
 
         if not kwargs.get("secret") and not os.environ.get('DJANGO_SECRET_KEY'):
+            # TODO: Mode exceptions to .defines
             raise Exception('"secret" option or DJANGO_SECRET_KEY environment variable is required')
         else:
             self.__secret: str = kwargs.get("secret", os.environ.get('DJANGO_SECRET_KEY'))
@@ -90,6 +99,7 @@ class VerificationToken:
                 os.environ.get('DJANGO_SECRET_KEY', "")
             )
         else:
+            # TODO: Mode exceptions to .defines
             raise Exception("There's not profile, field and value to verify.")
 
     @jwt.setter
