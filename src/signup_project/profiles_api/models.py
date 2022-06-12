@@ -1,8 +1,5 @@
 from django.db import models
 
-# From django-phonenumber-field[phonenumberslite] pip package
-from phonenumber_field.modelfields import PhoneNumberField
-
 # Create your models here.
 class Profile(models.Model):
     """
