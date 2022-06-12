@@ -15,9 +15,4 @@ class Migration(migrations.Migration):
             name='id',
             field=models.BigAutoField(primary_key=True, serialize=False),
         ),
-        migrations.AlterField(
-            model_name='profile',
-            name='phone',
-            field=models.CharField(max_length=15, verbose_name='phone number'),
-        ),
     ]
