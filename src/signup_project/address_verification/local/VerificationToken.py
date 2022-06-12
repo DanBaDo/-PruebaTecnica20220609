@@ -3,7 +3,7 @@ import os
 import jwt
 
 from profiles_api.models import Profile
-from .defines import VERIFIABLE_FIELDS, TOKEN_CLAIMS, MissingRequiredPropertiesException, MissingRequiredSecretException
+from .defines import MissingRequiredPropertiesException, MissingRequiredSecretException
 
 class VerificationToken:
     """
@@ -51,7 +51,7 @@ class VerificationToken:
 
     """
         
-    verify_property: VERIFIABLE_FIELDS
+    verify_property: str
     property_spected_value: str
     profile: Profile
 
@@ -68,32 +68,26 @@ class VerificationToken:
                 key = self.__secret,
                 algorithms = ["HS256"]
             )
-            print(Profile.objects.get(payload["sub"]))
             self.verify_property = payload["field"]
             self.property_spected_value = payload["value"]
-            self.profile = Profile.objects.get(payload["sub"])
+            self.profile = Profile.objects.get(pk=payload["sub"])
 
     def __str__(self) -> str:
         return f"Profile: {self.profile.name} - Property: {self.verify_property} - Value: {self.property_spected_value}"
     
     @property
     def jwt(self) -> str:
-
-        try:
-            self.profile and self.verify_property and self.property_spected_value
-        except AttributeError:
+        if self.profile and self.verify_property and self.property_spected_value:
+            return jwt.encode(
+                {
+                    "sub": self.profile.id,
+                    "field": self.verify_property,
+                    "value": self.property_spected_value,
+                },
+                self.__secret,
+            )
+        else:
             raise MissingRequiredPropertiesException
-
-        return jwt.encode(
-            {
-                #"iss": TOKEN_CLAIMS.ISSUER.value[0],
-                #"aud": TOKEN_CLAIMS.AUDIENCE.value[0],
-                "sub": self.profile.id,
-                "field": self.verify_property,
-                "value": self.property_spected_value,
-            },
-            self.__secret,
-        )
 
     @jwt.setter
     def jwt(self, **kwargs):
