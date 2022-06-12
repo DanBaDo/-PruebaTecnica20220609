@@ -57,7 +57,6 @@ class VerificationToken:
 
     def __init__( self, **kwargs ) -> None:
 
-
         if not kwargs.get("secret") and not os.environ.get('DJANGO_SECRET_KEY'):
             raise MissingRequiredSecretException
         else:
@@ -65,24 +64,17 @@ class VerificationToken:
 
         if type(kwargs.get("token")) == str:
             payload: dict = jwt.decode(
-                kwargs.get("token", ""),
-                os.environ.get('DJANGO_SECRET_KEY', ""),
-                options={
-                    """
-                    https://www.rfc-editor.org/rfc/rfc7519.html#page-9
-                    field: verified field label
-                    value: spected veried field value
-                    """
-                    "require": ["iss", "aud", "sub", "field", "value"],
-                    "verify_aud": True,
-                    "audience": TOKEN_CLAIMS.AUDIENCE.value,
-                    "verify_iss": True,
-                    "issuer": TOKEN_CLAIMS.ISSUER.value,
-                }
+                jwt = kwargs.get("token", ""),
+                key = self.__secret,
+                algorithms = ["HS256"]
             )
+            print(Profile.objects.get(payload["sub"]))
             self.verify_property = payload["field"]
             self.property_spected_value = payload["value"]
             self.profile = Profile.objects.get(payload["sub"])
+
+    def __str__(self) -> str:
+        return f"Profile: {self.profile.name} - Property: {self.verify_property} - Value: {self.property_spected_value}"
     
     @property
     def jwt(self) -> str:
@@ -94,15 +86,14 @@ class VerificationToken:
 
         return jwt.encode(
             {
-                "iss": TOKEN_CLAIMS.ISSUER.value,
-                "aud": TOKEN_CLAIMS.AUDIENCE.value,
+                #"iss": TOKEN_CLAIMS.ISSUER.value[0],
+                #"aud": TOKEN_CLAIMS.AUDIENCE.value[0],
                 "sub": self.profile.id,
                 "field": self.verify_property,
                 "value": self.property_spected_value,
             },
-            os.environ.get('DJANGO_SECRET_KEY', "")
+            self.__secret,
         )
-
 
     @jwt.setter
     def jwt(self, **kwargs):
