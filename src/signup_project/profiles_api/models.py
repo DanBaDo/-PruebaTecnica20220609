@@ -13,7 +13,8 @@ class Profile(models.Model):
     name = models.CharField("real name", max_length=100)
     surname = models.CharField("last name", max_length=200)
     email = models.EmailField("e-mail address",max_length=200)
-    phone = PhoneNumberField()
+    # TODO: Apply adecuated phone number validation
+    phone = models.CharField("phone number", max_length=15)
     validated_email = models.BooleanField("validated e-mail", default=False)
     validated_phone = models.BooleanField("validated phone number", default=False)
     def __str__(self):
