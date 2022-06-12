@@ -2,8 +2,8 @@ import os
 
 import jwt
 
-from signup_project.profiles_api.models import Profile
-from .defines import VERIFIABLE_FIELDS, TOKEN_CLAIMS
+from profiles_api.models import Profile
+from .defines import VERIFIABLE_FIELDS, TOKEN_CLAIMS, MissingRequiredPropertiesException, MissingRequiredSecretException
 
 class VerificationToken:
     """
@@ -59,8 +59,7 @@ class VerificationToken:
 
 
         if not kwargs.get("secret") and not os.environ.get('DJANGO_SECRET_KEY'):
-            # TODO: Mode exceptions to .defines
-            raise Exception('"secret" option or DJANGO_SECRET_KEY environment variable is required')
+            raise MissingRequiredSecretException
         else:
             self.__secret: str = kwargs.get("secret", os.environ.get('DJANGO_SECRET_KEY'))
 
@@ -76,9 +75,9 @@ class VerificationToken:
                     """
                     "require": ["iss", "aud", "sub", "field", "value"],
                     "verify_aud": True,
-                    "audience": TOKEN_CLAIMS.AUDIENCE,
+                    "audience": TOKEN_CLAIMS.AUDIENCE.value,
                     "verify_iss": True,
-                    "issuer": TOKEN_CLAIMS.ISSUER,
+                    "issuer": TOKEN_CLAIMS.ISSUER.value,
                 }
             )
             self.verify_property = payload["field"]
@@ -87,20 +86,23 @@ class VerificationToken:
     
     @property
     def jwt(self) -> str:
-        if self.profile and self.verify_property and self.property_spected_value:
-            return jwt.encode(
-                {
-                    "iss": TOKEN_CLAIMS.ISSUER,
-                    "aud": TOKEN_CLAIMS.AUDIENCE,
-                    "sub": self.profile.id,
-                    "field": self.verify_property,
-                    "value": self.property_spected_value,
-                },
-                os.environ.get('DJANGO_SECRET_KEY', "")
-            )
-        else:
-            # TODO: Mode exceptions to .defines
-            raise Exception("There's not profile, field and value to verify.")
+
+        try:
+            self.profile and self.verify_property and self.property_spected_value
+        except AttributeError:
+            raise MissingRequiredPropertiesException
+
+        return jwt.encode(
+            {
+                "iss": TOKEN_CLAIMS.ISSUER.value,
+                "aud": TOKEN_CLAIMS.AUDIENCE.value,
+                "sub": self.profile.id,
+                "field": self.verify_property,
+                "value": self.property_spected_value,
+            },
+            os.environ.get('DJANGO_SECRET_KEY', "")
+        )
+
 
     @jwt.setter
     def jwt(self, **kwargs):
