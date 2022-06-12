@@ -39,8 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # From django-phonenumber-field[phonenumberslite] pip package
-    'phonenumber_field',
     'profiles_api',
     'rest_framework',
 ]
