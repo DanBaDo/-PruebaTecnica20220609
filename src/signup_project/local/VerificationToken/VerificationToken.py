@@ -4,7 +4,7 @@ from django.conf import settings
 import jwt
 
 from profiles_api.models import Profile
-from .defines import TOKEN_CLAIMS, VERIFIABLE_FIELDS, VERIFIABLE_FIELDS_FLAGS, verifiable_fields_flags, MissingRequiredSecretException
+from local.defines import TOKEN_CLAIMS, VERIFIABLE_FIELDS, VERIFIABLE_FIELDS_FLAGS, verifiable_fields_flags, MissingRequiredSecretException
 
 class VerificationResponse:
     valid: bool
@@ -12,8 +12,16 @@ class VerificationResponse:
     change_flag: VERIFIABLE_FIELDS_FLAGS
     property_spected_value: str
     profile_id: int
+    def __repr__(self) -> str:
+        return f"""Valid: {self.valid}
+property: {self.property_spected_value}
+flag: {self.change_flag}
+value: {self.property_spected_value}
+profile: {self.profile_id}
+"""
 
 class VerificationToken:
+    # TODO: Switch to RS256 protocol if microservices for easy secret protection.
     """
     Provides and validates JSON Web Token for verifiying profiles e-mail, phones, etc.
 
@@ -93,8 +101,8 @@ class VerificationToken:
             "sub" in payload and type(payload["sub"]) == int
         )
         # TODO: Search for a best type hinting fit
-        response.verify_property = payload["verify_property"],  # type: ignore
-        response.change_flag = verifiable_fields_flags[payload["verify_property"]],  # type: ignore
-        response.property_spected_value = payload["property_spected_value"],  # type: ignore
-        response.profile_id =  payload["sub"], # type: ignore
+        response.verify_property = payload["verify_property"]  # type: ignore
+        response.change_flag = verifiable_fields_flags[payload["verify_property"]]  # type: ignore
+        response.property_spected_value = payload["property_spected_value"]  # type: ignore
+        response.profile_id =  payload["sub"] # type: ignore
         return response
