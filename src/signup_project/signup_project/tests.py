@@ -1,7 +1,7 @@
 from django.test import TestCase
 
-from local.VerificationToken import Profile
-from local.VerificationToken import VerificationToken
+from signup_project.local.VerificationToken.VerificationToken import Profile
+from signup_project.local.VerificationToken.VerificationToken import VerificationToken
 
 SECRET = "Not a good secret"
 
@@ -12,7 +12,7 @@ class VerificationTokenTestCase(TestCase):
             name = "Daniel",
             surname = "Bañobre Dopico",
             email = "cosas@proton.me",
-            phone = "+34616656123",
+            phone = "+34616656123"
         )
 
     def test_token_creation(self) -> None:
@@ -31,10 +31,9 @@ class VerificationTokenTestCase(TestCase):
         token = validator.new_token(profile, "email")
 
         validation = validator.parse_token(token)
-
-        self.assertEquals(validation["valid"], True)
-        self.assertEquals(validation["verify_property"], "email")
-        self.assertEquals(validation["property_spected_value"], profile.email)
+        self.assertEquals(validation.valid, True)
+        self.assertEquals(validation.verify_property, "email")
+        self.assertEquals(validation.property_spected_value, profile.email)
 
     def test_parse_bad_token(self) -> None:
         # TODO
