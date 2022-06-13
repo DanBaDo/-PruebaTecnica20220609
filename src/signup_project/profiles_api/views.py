@@ -21,3 +21,21 @@ class ProfilesView(APIView):
         serializer = GetProfileSerializer(profiles, many = True)
         return Response(serializer.data)
 
+<<<<<<< Updated upstream
+=======
+class ProfilesAddressesValidation(APIView):
+
+    def get(self, request, jwt):
+        try:
+            verifier = VerificationToken()
+            validation = verifier.parse_token(jwt)
+            if validation["valid"]:
+                profile = Profile.objects.get(pk=validation["profile_id"])
+                setattr(profile, validation["change_flag"], True)
+                profile.save()
+                return Response(f'Valid {validation["verify_property"]}', status=HTTP_200_OK)
+            else:
+                raise Exception
+        except Exception:
+            return Response("Invalid token", status=HTTP_400_BAD_REQUEST)
+>>>>>>> Stashed changes
