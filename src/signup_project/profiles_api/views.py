@@ -1,3 +1,10 @@
+import os
+
+if os.environ.get("DJANGO_PRODUCTION", False) == True:
+    from local.token_sender import token_sender as token_sender
+else:
+    from local.token_sender import moked_token_sender as token_sender
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_200_OK
@@ -10,11 +17,26 @@ from local.VerificationToken import VerificationToken
 class ProfilesView(APIView):
 
     def post(self, request):
+
         serializer = PostProfileSerializer(data=request.data)
+
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=HTTP_201_CREATED)
+
+            verifier = VerificationToken()
+
+            newProfile = serializer.save()
+            print(dir(newProfile))
+
+            email_token = verifier.new_token(newProfile, "email")
+            token_sender(newProfile.email, "email", email_token)
+
+            sms_token = verifier.new_token(newProfile, "phone")
+            token_sender(newProfile.email, "phone", sms_token)
+
+            return Response(status=HTTP_201_CREATED)
+
         else:
+
             return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
     def get(self, request):
