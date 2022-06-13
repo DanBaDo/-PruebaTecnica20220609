@@ -4,7 +4,14 @@ from django.conf import settings
 import jwt
 
 from profiles_api.models import Profile
-from .defines import TOKEN_CLAIMS, VERIFIABLE_FIELDS, VERIFIABLE_FIELDS_FLAGS, MissingRequiredSecretException
+from .defines import TOKEN_CLAIMS, VERIFIABLE_FIELDS, VERIFIABLE_FIELDS_FLAGS, verifiable_fields_flags, MissingRequiredSecretException
+
+class VerificationResponse:
+    valid: bool
+    verify_property: VERIFIABLE_FIELDS
+    change_flag: VERIFIABLE_FIELDS_FLAGS
+    property_spected_value: str
+    profile_id: int
 
 class VerificationToken:
     """
@@ -57,9 +64,9 @@ class VerificationToken:
             self.__secret,
         )
 
-    def parse_token(self, token: str) -> "dict[str, Any]":
+    def parse_token(self, token: str) -> VerificationResponse:
 
-        payload: dict = jwt.decode(
+        payload = jwt.decode(
             jwt = token,
             key = self.__secret,
             algorithms = ["HS256"],
@@ -77,17 +84,16 @@ class VerificationToken:
             audience = TOKEN_CLAIMS["AUD"],
         )
 
-        # TODO: Define data type for object output
-        return {
-            "valid": (
-                    "verify_property" in payload and payload["verify_property"] in get_args(VERIFIABLE_FIELDS)
-                    and
-                    "property_spected_value" in payload and type(payload["property_spected_value"]) == str
-                    and
-                    "sub" in payload and type(payload["sub"]) == int
-                ),
-            "verify_property": payload["verify_property"],
-            "change_flag": VERIFIABLE_FIELDS_FLAGS[payload["verify_property"]],
-            "property_spected_value": payload["property_spected_value"],
-            "profile_id": payload["sub"]
-        }
+        response = VerificationResponse()
+        response.valid = (
+            "verify_property" in payload and payload["verify_property"] in get_args(VERIFIABLE_FIELDS)
+            and
+            "property_spected_value" in payload and type(payload["property_spected_value"]) == str
+            and
+            "sub" in payload and type(payload["sub"]) == int
+        )
+        response.verify_property = payload["verify_property"],  # type: ignore
+        response.change_flag = verifiable_fields_flags[payload["verify_property"]],  # type: ignore
+        response.property_spected_value = payload["property_spected_value"],  # type: ignore
+        response.profile_id =  payload["sub"], # type: ignore
+        return response
