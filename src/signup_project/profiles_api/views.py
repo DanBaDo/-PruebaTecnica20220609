@@ -1,9 +1,6 @@
-import os
+import asyncio
 
-if os.environ.get("DJANGO_PRODUCTION", False) == True:
-    from local.token_sender import token_sender as token_sender
-else:
-    from local.token_sender import moked_token_sender as token_sender
+from local.token_sender.token_sender import send_tokens
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -12,7 +9,7 @@ from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_2
 from profiles_api.models import Profile
 from profiles_api.serializers import PostProfileSerializer, GetProfileSerializer
 
-from local.VerificationToken import VerificationToken
+from local.VerificationToken.VerificationToken import VerificationToken
 
 class ProfilesView(APIView):
 
@@ -25,13 +22,17 @@ class ProfilesView(APIView):
             verifier = VerificationToken()
 
             newProfile = serializer.save()
-            print(dir(newProfile))
 
             email_token = verifier.new_token(newProfile, "email")
-            token_sender(newProfile.email, "email", email_token)
-
             sms_token = verifier.new_token(newProfile, "phone")
-            token_sender(newProfile.email, "phone", sms_token)
+
+            asyncio.run(
+                send_tokens((
+                    (str(newProfile.email), "email", email_token),
+                    (str(newProfile.phone) , "phone", sms_token)
+                ))
+            )
+            
 
             return Response(status=HTTP_201_CREATED)
 
