@@ -92,6 +92,7 @@ class VerificationToken:
             and
             "sub" in payload and type(payload["sub"]) == int
         )
+        # TODO: Search for a best type hinting fit
         response.verify_property = payload["verify_property"],  # type: ignore
         response.change_flag = verifiable_fields_flags[payload["verify_property"]],  # type: ignore
         response.property_spected_value = payload["property_spected_value"],  # type: ignore
