@@ -50,11 +50,11 @@ class ProfilesAddressesValidation(APIView):
         try:
             verifier = VerificationToken()
             validation = verifier.parse_token(jwt)
-            if validation["valid"]:
-                profile = Profile.objects.get(pk=validation["profile_id"])
-                setattr(profile, validation["change_flag"], True)
-                # TODO: Set as verified
-                return Response(f'Valid {validation["verify_property"]}', status=HTTP_200_OK)
+            if validation.valid:
+                profile = Profile.objects.get(pk=validation.profile_id)
+                setattr(profile, validation.change_flag, True)
+                profile.save()
+                return Response(f'Valid {validation.verify_property}', status=HTTP_200_OK)
             else:
                 raise Exception
         except Exception:
