@@ -1,10 +1,11 @@
-from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST
+from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_200_OK
 
 from profiles_api.models import Profile
 from profiles_api.serializers import PostProfileSerializer, GetProfileSerializer
+
+from local.VerificationToken import VerificationToken
 
 class ProfilesView(APIView):
 
@@ -21,8 +22,6 @@ class ProfilesView(APIView):
         serializer = GetProfileSerializer(profiles, many = True)
         return Response(serializer.data)
 
-<<<<<<< Updated upstream
-=======
 class ProfilesAddressesValidation(APIView):
 
     def get(self, request, jwt):
@@ -38,4 +37,3 @@ class ProfilesAddressesValidation(APIView):
                 raise Exception
         except Exception:
             return Response("Invalid token", status=HTTP_400_BAD_REQUEST)
->>>>>>> Stashed changes
