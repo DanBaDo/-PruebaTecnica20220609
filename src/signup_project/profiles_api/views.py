@@ -31,7 +31,7 @@ class ProfilesAddressesValidation(APIView):
             if validation["valid"]:
                 profile = Profile.objects.get(pk=validation["profile_id"])
                 setattr(profile, validation["change_flag"], True)
-                # TODO: Set as verified
+                profile.save()
                 return Response(f'Valid {validation["verify_property"]}', status=HTTP_200_OK)
             else:
                 raise Exception
